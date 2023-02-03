@@ -1,0 +1,71 @@
+{
+  "build": {
+    "distDir": "src-front/dist",
+    "devPath": "http://127.0.0.1:5173/",
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev -- --port 5173"
+  },
+  "package": {
+    "productName": "ImgStore"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "protocol": {
+        "assetScope": [
+          "**"
+        ],
+        "asset": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "src-front/public/favicon.ico"
+      ],
+      "identifier": "i.e792a8.imgstore",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": {
+        "default-src": "'self' customprotocol: asset:",
+        "img-src": "'self' asset: https://asset.localhost blob: data:",
+        "style-src": "'unsafe-inline' 'self'"
+      },
+      "freezePrototype": true
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "ImgStore",
+        "width": 800
+      }
+    ]
+  }
+}
