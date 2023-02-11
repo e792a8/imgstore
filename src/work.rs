@@ -63,6 +63,18 @@ pub fn get_cmd_args() -> Args {
     }
     assert!(storedir.len() > 0, "store directory not specified");
     assert!(filepath.len() > 0, "file path not specified");
+    let storedir = Path::new(&storedir)
+        .canonicalize()
+        .expect("store directory bad")
+        .to_str()
+        .unwrap()
+        .to_string();
+    let filepath = Path::new(&filepath)
+        .canonicalize()
+        .expect("file path bad")
+        .to_str()
+        .unwrap()
+        .to_string();
     Args {
         storedir,
         filepath,
@@ -91,6 +103,8 @@ pub fn process(args: Args, wnd: tauri::Window) -> Option<ImgsInfo> {
             for elem in dir {
                 let elem = storepath
                     .join(elem.unwrap().path())
+                    .canonicalize()
+                    .unwrap()
                     .to_str()
                     .unwrap()
                     .to_owned();
