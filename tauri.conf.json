@@ -52,8 +52,7 @@
         "default-src": "'self' customprotocol: asset:",
         "img-src": "'self' asset: https://asset.localhost blob: data:",
         "style-src": "'unsafe-inline' 'self'"
-      },
-      "freezePrototype": true
+      }
     },
     "updater": {
       "active": false
