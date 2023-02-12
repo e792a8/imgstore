@@ -14,8 +14,8 @@ listen<[number, number]>('progress', (ev) => {
 <template>
   <n-spin size="large" :show="state[1] == 0">
     <div v-if="state[1] != 0">
-      <n-progress type="line" :show-indicator="false" :processing="state[1] == 0" indicator-placement="inside"
-        :percentage="state[0] * 100 / state[1]" ></n-progress>
+      <n-progress type="line" :show-indicator="false" :processing="state[1] == 0"
+        :percentage="state[0] * 100 / state[1]" />
       <p style="text-align: center;">{{ state[0] }} / {{ state[1] }}</p>
     </div>
   </n-spin>
