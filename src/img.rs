@@ -1,15 +1,16 @@
 use std::{fs::metadata, path::Path};
 
-use image::{io::Reader as ImageReader, DynamicImage, GenericImageView, ImageResult};
+use image::{io::Reader as ImageReader, DynamicImage, ImageResult};
+use image_hasher::{HasherConfig, ImageHash};
 
-pub type NormalizedHist = [[f32; 64]; 3];
+type Data = ImageHash;
 
 pub struct ImgData {
     pub path: String,
     pub name: String,
     pub size: u64,
     pub res: (u32, u32),
-    pub hist: NormalizedHist,
+    pub data: Data,
 }
 
 pub fn get_img_data(path: &str) -> Result<ImgData, String> {
@@ -24,11 +25,11 @@ pub fn get_img_data(path: &str) -> Result<ImgData, String> {
                 .to_owned(),
             res: (img.width(), img.height()),
             size: md.len(),
-            hist: normalized_hist(&img),
+            data: to_data(img),
         }),
         e => {
-            if let Err(_) = e.0 {
-                Err(e.0.err().unwrap().to_string())
+            if let Err(x) = e.0 {
+                Err(x.to_string())
             } else {
                 Err(e.1.err().unwrap().to_string())
             }
@@ -36,36 +37,32 @@ pub fn get_img_data(path: &str) -> Result<ImgData, String> {
     }
 }
 
-pub fn open_img(a: &str) -> ImageResult<DynamicImage> {
+fn open_img(a: &str) -> ImageResult<DynamicImage> {
     Ok(ImageReader::open(a)?.with_guessed_format()?.decode()?)
 }
 
-pub fn normalized_hist(img: &DynamicImage) -> NormalizedHist {
-    let mut hist = [[0u32; 256]; 3];
-    for p in img.pixels() {
-        hist[0][p.2 .0[0] as usize] += 1;
-        hist[1][p.2 .0[1] as usize] += 1;
-        hist[2][p.2 .0[2] as usize] += 1;
-    }
-    let mut norm = [[0f32; 64]; 3];
-    for c in 0..3 {
-        let mut m = 1u32;
-        for i in 0..256 {
-            m = m.max(hist[c][i]);
-        }
-        for i in 0..256 {
-            norm[c][i / 4] += hist[c][i] as f32 / m as f32 / 4f32;
-        }
-    }
-    norm
+fn to_data(img: DynamicImage) -> Data {
+    let hasher = HasherConfig::new().to_hasher();
+    hasher.hash_image(&img)
 }
 
-pub fn hist_similarity(a: &[[f32; 64]; 3], b: &[[f32; 64]; 3]) -> f32 {
-    let mut diff = 0f32;
-    for c in 0..3 {
-        for i in 0..64 {
-            diff += (a[c][i] - b[c][i]).abs()
-        }
+pub fn similarity(a: &Data, b: &Data) -> f32 {
+    let rdist = a.dist(b) as f32 / (a.as_bytes().len() * 8) as f32;
+    return 1f32 - rdist;
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use super::*;
+
+    #[test]
+    pub fn similarity_check() {
+        let mut args = std::env::args();
+        let f1 = args.nth_back(0).unwrap();
+        let f2 = args.nth_back(0).unwrap();
+        let f1 = to_data(open_img(&f1).unwrap());
+        let f2 = to_data(open_img(&f2).unwrap());
+        let sim = similarity(&f1, &f2);
+        println!("{} {} {sim}", f1.as_bytes().len(), f2.as_bytes().len());
     }
-    1f32 - diff / 3f32 / 64f32
 }

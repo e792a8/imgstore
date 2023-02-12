@@ -1,4 +1,4 @@
-use crate::img::{get_img_data, hist_similarity, ImgData};
+use crate::img::{get_img_data, similarity, ImgData};
 
 use serde::{Deserialize, Serialize};
 use std::{
@@ -116,9 +116,9 @@ pub fn process(args: Args, wnd: tauri::Window) -> Option<ImgsInfo> {
                             name,
                             size,
                             res,
-                            hist,
+                            data,
                         }) => {
-                            let sim = hist_similarity(&fdata.hist, &hist);
+                            let sim = similarity(&fdata.data, &data);
                             if Path::new(&fdata.path).file_name() == Path::new(&path).file_name()
                                 || sim > *sim_th
                             {
@@ -137,6 +137,7 @@ pub fn process(args: Args, wnd: tauri::Window) -> Option<ImgsInfo> {
                 cnt += 1;
                 progress(cnt, total, &wnd);
             }
+            elems.sort_by(|x, y| y.sim.partial_cmp(&x.sim).unwrap());
             let main_img = MainImgInfo {
                 path: fdata.path,
                 name: fdata.name,
